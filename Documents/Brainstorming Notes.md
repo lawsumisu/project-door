@@ -1,4 +1,9 @@
-#### Open Door Game
+#### 17.09.04
+* Shutter Door Implementation
+    * There are many ways to go about replicating the physics for this door, and while some might be more realistic than others, others might be more intuitive or just give a better experience:
+        * Door whose "weight" not only makes it harder to pull up, but also makes it fall faster (more intuitive?)
+        * Door whose "weight" only opposes the upward motion, but falls at the same speed regardless of weight (more realistic)
+#### 17.08.02
 * Mobile phone game about opening doors
     * Goal is to open as many doors as possible
     * Different doors require different methods for opening
