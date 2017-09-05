@@ -5,11 +5,7 @@ public class DeadboltLock : Lock {
     public float boltLength = 5;
     public float knobRadius = 5;
     public Vector2 lockedToUnlockedAxis = Vector2.right;
-
-    private Vector2 knobPosition;
-    private Vector2 lockOrigin;
  
-    private Vector2 knobUnlockPosition;
     private bool knobIsHeld;
 
     private Transform knobTransform, boltTransform;
@@ -27,12 +23,14 @@ public class DeadboltLock : Lock {
 
    
     void Update() {
-        UpdateSprites();
+        UpdateState();
+        if (!isLocked()) {
+            knobTransform.GetComponent<SpriteRenderer>().color = Color.blue;
+            return;
+        }
 
         Vector2 pointerInput = getPointerInput();
-        Debug.Log(transform.InverseTransformPoint(pointerInput));
         knobIsHeld = (knobIsTouched(pointerInput) && Input.GetMouseButtonDown(0)) || (Input.GetMouseButton(0) && knobIsHeld);
-        debug();
 
         if (knobIsTouched(pointerInput)){
             knobTransform.GetComponent<SpriteRenderer>().color = Color.green;
@@ -45,9 +43,8 @@ public class DeadboltLock : Lock {
         }
     }
 
-    void UpdateSprites() {
+    void UpdateState() {
         lockedToUnlockedAxis.Normalize();
-        knobUnlockPosition = lockedToUnlockedAxis * boltLength;
         Bounds knobBounds = knobTransform.GetComponent<SpriteRenderer>().sprite.bounds;
         Bounds boltBounds = boltTransform.GetComponent<SpriteRenderer>().sprite.bounds;
 
@@ -58,14 +55,10 @@ public class DeadboltLock : Lock {
         transform.localRotation = Quaternion.FromToRotation(Vector2.right, lockedToUnlockedAxis);
             
     }
-
-    private Vector2 getPointerInput() {
-        return Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    }
-
     
     override public bool isLocked() {
-        return !knobPosition.Equals(knobUnlockPosition);
+        // In the knob's local space, can simplify to a 1D line, where the unlocked position is equal to the length of the bolt.
+        return !knobTransform.localPosition.x.Equals(boltLength);
     }
 
     public void setKnobPosition(Vector2 newPosition) {
@@ -87,14 +80,6 @@ public class DeadboltLock : Lock {
     private bool knobIsTouched(Vector2 pointerLocation) {
         float distance = Vector2.Distance(knobTransform.position, pointerLocation);
         return distance <= knobRadius; 
-    }
-
-    public void debug() {
-        Vector2 v1 = transform.TransformPoint(Vector2.zero);
-        Vector2 v2 = transform.TransformPoint(knobUnlockPosition);
-        Debug.DrawLine(v1, v2, Color.blue);
-
-        Debug.DrawLine(getPointerInput(), getPointerInput(), Color.yellow);
     }
 
 }
